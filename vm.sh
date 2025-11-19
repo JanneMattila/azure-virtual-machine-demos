@@ -197,6 +197,15 @@ nvme list
 # List NUMAs (Boost NUMA awareness)
 lscpu | grep NUMA
 
+# Check MANA nic
+lspci
+
+# Check MANA driver
+grep /mana*.ko /lib/modules/$(uname -r)/modules.builtin || find /lib/modules/$(uname -r)/kernel -name mana*.ko*
+
+# Check network interfaces
+ip link
+
 # Check network performance tuning
 sysctl net.core.rmem_max
 sysctl net.core.wmem_max
