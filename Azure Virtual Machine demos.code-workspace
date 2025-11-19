@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"humao.rest-client",
+			"ms-vscode-remote.remote-wsl",
+			"mads-hartmann.bash-ide-vscode"
+		]
+	}
+}

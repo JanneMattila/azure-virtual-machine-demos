@@ -1,0 +1,9 @@
+#cloud-config
+package_update: true
+packages:
+  - htop
+  - nvme-cli
+runcmd:
+  - sysctl -w net.core.rmem_max=134217728
+  - sysctl -w net.core.wmem_max=134217728
+  - echo "Cloud-init completed" > /var/log/cloud-init.done
