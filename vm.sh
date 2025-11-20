@@ -6,9 +6,9 @@ set -euo pipefail
 # ----------------------------
 SUBSCRIPTION_ID="<your-subscription-id>"
 LOCATION="swedencentral"                      # Espoo -> use North Europe by default
-RG="rg-boost-demo"
-VM_NAME="vm-boost-demo"
-VM_SIZE="Standard_D8s_v5"                   # Boost-enabled example size
+RG="rg-vm-demo"
+VM_NAME="vm-demo"
+VM_SIZE="Standard_D8s_v5"                   # enabled example size
 IMAGE="Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:latest"
 ADMIN_USERNAME="azureuser"
 # Generate a strong password or use SSH keys (recommended for Linux)
@@ -23,11 +23,11 @@ else
 fi
 AUTH_TYPE="password"                              # "ssh" or "password"
 SSH_KEY_PATH="$HOME/.ssh/id_rsa.pub"         # Used when AUTH_TYPE=ssh
-VNET_NAME="vnet-boost-demo"
-SUBNET_NAME="snet-boost-demo"
-NSG_NAME="nsg-boost-demo"
-PIP_NAME="pip-boost-demo"
-NIC_NAME="nic-boost-demo"
+VNET_NAME="vnet-demo"
+SUBNET_NAME="snet-demo"
+NSG_NAME="nsg-demo"
+PIP_NAME="pip-demo"
+NIC_NAME="nic-demo"
 DIAG_STORAGE=""                              # Leave empty to disable boot diagnostics
 # Optional Ultra Disk data disk (set USE_ULTRA_DISK=true to attach one)
 USE_ULTRA_DISK=true
@@ -35,7 +35,7 @@ DATA_DISK_NAME="datadisk-ultra"
 DATA_DISK_SIZE_GB=128                        # Ultra Disk size
 DATA_DISK_LUN=0
 # Tags
-TAGS="env=demo workload=boost owner=$USER"
+TAGS="env=demo owner=$USER"
 
 # ----------------------------
 # Login & subscription
@@ -45,12 +45,12 @@ az account show >/dev/null 2>&1 || az login --only-show-errors
 az account set --subscription "$SUBSCRIPTION_ID"
 
 # ----------------------------
-# Validate VM size in region (Boost-related)
+# Validate VM size in region (related)
 # ----------------------------
 echo "Checking availability of VM size '$VM_SIZE' in '$LOCATION'..."
 if ! az vm list-sizes --location "$LOCATION" --query "[?name=='$VM_SIZE']" -o tsv | grep -q "$VM_SIZE"; then
   echo "ERROR: VM size '$VM_SIZE' is not available in region '$LOCATION'."
-  echo "Tip: run 'az vm list-sizes --location $LOCATION -o table' and pick a Boost-enabled size (e.g., Dsv5/Lsv3)."
+  echo "Tip: run 'az vm list-sizes --location $LOCATION -o table' and pick a enabled size (e.g., Dsv5/Lsv3)."
   exit 1
 fi
 
@@ -80,7 +80,7 @@ az network nsg rule create -g "$RG" --nsg-name "$NSG_NAME" -n "allow-ssh-myip" \
 az network public-ip create -g "$RG" -n "$PIP_NAME" -l "$LOCATION" \
   --sku Standard --allocation-method Static --tags $TAGS
 
-# NIC with accelerated networking (Boost NIC path benefits)
+# NIC with accelerated networking
 SUBNET_ID=$(az network vnet subnet show -g "$RG" --vnet-name "$VNET_NAME" -n "$SUBNET_NAME" --query id -o tsv)
 NSG_ID=$(az network nsg show -g "$RG" -n "$NSG_NAME" --query id -o tsv)
 PIP_ID=$(az network public-ip show -g "$RG" -n "$PIP_NAME" --query id -o tsv)
@@ -191,10 +191,10 @@ sshpass -p "$ADMIN_PASSWORD" ssh $ADMIN_USERNAME@"$PUBLIC_IP"
 ## Install
 sudo apt install fio stress-ng numactl -y
 
-## Inside the VM, check NVMe devices (Boost block storage path)
+## Inside the VM, check NVMe devices
 nvme list
 
-# List NUMAs (Boost NUMA awareness)
+# List NUMAs
 lscpu | grep NUMA
 
 # Check MANA nic
